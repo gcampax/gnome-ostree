@@ -1,0 +1,44 @@
+From 7f0c17a517481f6c4b3b06323b29e5c7398f95be Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagna@src.gnome.org>
+Date: Sat, 5 Jan 2013 16:28:18 +0100
+Subject: [PATCH] Fix build with srcdir != builddir
+
+---
+ src/libgdu/Makefile.am | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/src/libgdu/Makefile.am b/src/libgdu/Makefile.am
+index 8d6b17a..7842758 100644
+--- a/src/libgdu/Makefile.am
++++ b/src/libgdu/Makefile.am
+@@ -4,20 +4,21 @@ BUILT_SOURCES =
+ 
+ noinst_LTLIBRARIES = libgdu.la
+ 
+-libgduenumtypes.h: libgduenums.h libgduenumtypes.h.template
++$(srcdir)/libgduenumtypes.h: libgduenums.h libgduenumtypes.h.template
+ 	( top_builddir=`cd $(top_builddir) && pwd`; 						\
+ 	 cd $(srcdir) && glib-mkenums --template libgduenumtypes.h.template libgduenums.h ) >	\
+-	   libgduenumtypes.h.tmp && mv libgduenumtypes.h.tmp libgduenumtypes.h			\
++	   libgduenumtypes.h.tmp && mv libgduenumtypes.h.tmp $@					\
+ 	$(NULL)
+ 
+-libgduenumtypes.c: libgduenums.h libgduenumtypes.c.template
++$(srcdir)/libgduenumtypes.c: libgduenums.h libgduenumtypes.c.template
+ 	( top_builddir=`cd $(top_builddir) && pwd`; 						\
+ 	 cd $(srcdir) && glib-mkenums --template libgduenumtypes.c.template libgduenums.h ) > 	\
+-	   libgduenumtypes.c.tmp && mv libgduenumtypes.c.tmp libgduenumtypes.c			\
++	   libgduenumtypes.c.tmp && mv libgduenumtypes.c.tmp $@					\
+ 	$(NULL)
+ 
+-enum_built_sources =								\
+-	libgduenumtypes.h			libgduenumtypes.c		\
++enum_built_sources =			\
++	$(srcdir)/libgduenumtypes.h	\
++	$(srcdir)/libgduenumtypes.c	\
+ 	$(NULL)
+ 
+ BUILT_SOURCES += $(enum_built_sources)
+-- 
+1.8.0.1
+

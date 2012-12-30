@@ -1,0 +1,27 @@
+From 79141b41829449792c13da36742032e7fae2f5db Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagna@src.gnome.org>
+Date: Sat, 5 Jan 2013 18:58:45 +0100
+Subject: [PATCH] Fix build with srcdir != builddir
+
+The $(srcdir) prefix is already inserted by make for targets and
+dependencies.
+---
+ data/themes/Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/data/themes/Makefile.am b/data/themes/Makefile.am
+index 58d0618..cf356c4 100644
+--- a/data/themes/Makefile.am
++++ b/data/themes/Makefile.am
+@@ -39,7 +39,7 @@ pgo_messageStyle = \
+ install-themes: $(themes)
+ 	for f in $^; do \
+ 		mkdir -p `dirname $(DESTDIR)$(themesdir)/$$f`; \
+-		$(INSTALL_DATA) $(srcdir)/$$f $(DESTDIR)$(themesdir)/$$f; \
++		$(INSTALL_DATA) $$f $(DESTDIR)$(themesdir)/$$f; \
+ 	done
+ 
+ uninstall-themes: $(themes)
+-- 
+1.8.0.1
+

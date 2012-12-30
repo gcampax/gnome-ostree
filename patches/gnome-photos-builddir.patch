@@ -1,0 +1,40 @@
+From 02ac2711f9ad65d10f8231f6977deb74269ff2c3 Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagna@src.gnome.org>
+Date: Sat, 5 Jan 2013 16:06:54 +0100
+Subject: [PATCH] Fix build with srcdir != builddir
+
+---
+ Makefile.am | 2 +-
+ autogen.sh  | 3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 8e344dc..47bfd3e 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -36,7 +36,7 @@ DISTCLEANFILES = \
+ 	po/.intltool-merge-cache \
+ 	$(NULL)
+ 
+-AUTHORS:
++$(srcdir)/AUTHORS:
+ 	@if test -d "$(srcdir)/.git"; \
+ 	then \
+ 		echo Creating $@ && \
+diff --git a/autogen.sh b/autogen.sh
+index aac383a..ed03032 100755
+--- a/autogen.sh
++++ b/autogen.sh
+@@ -20,6 +20,9 @@ which gnome-autogen.sh || {
+ 
+ git submodule update --init --recursive
+ 
++# Automake complains if this file is missing
++touch ./AUTHORS
++
+ REQUIRED_AUTOCONF_VERSION=2.63
+ REQUIRED_AUTOMAKE_VERSION=1.11
+ REQUIRED_INTLTOOL_VERSION=0.40.0
+-- 
+1.8.0.1
+

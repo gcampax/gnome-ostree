@@ -1,0 +1,31 @@
+From a8ad4f19b997e83768adf1ccb638b5b04aeab92f Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagna@src.gnome.org>
+Date: Sat, 5 Jan 2013 18:47:39 +0100
+Subject: [PATCH] Support GNOME Build API
+
+Skip configure if NOCONFIGURE environment variable is present.
+---
+ autogen.sh | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/autogen.sh b/autogen.sh
+index c39444c..3436cf4 100755
+--- a/autogen.sh
++++ b/autogen.sh
+@@ -18,7 +18,12 @@ fi
+ 
+ autoreconf -i -f
+ 
+-run_configure=true
++if test -z "$NOCONFIGURE"; then
++    run_configure=true
++else
++    run_configure=false
++fi
++
+ for arg in $*; do
+     case $arg in
+         --no-configure)
+-- 
+1.8.0.1
+

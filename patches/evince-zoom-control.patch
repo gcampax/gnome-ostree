@@ -1,0 +1,32 @@
+From c5d3c22ac5cb0c262ec110618d04aa36dc0d4cd2 Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagna@src.gnome.org>
+Date: Sat, 5 Jan 2013 15:14:25 +0100
+Subject: [PATCH] Really remove ephy-zoom-control
+
+---
+ shell/Makefile.am | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/shell/Makefile.am b/shell/Makefile.am
+index e6ce00f..38952b6 100644
+--- a/shell/Makefile.am
++++ b/shell/Makefile.am
+@@ -4,7 +4,6 @@ INCLUDES=							\
+ 	-DGNOMEDATADIR=\"$(datadir)\"				\
+ 	-I$(top_srcdir)						\
+ 	-I$(top_builddir)					\
+-	-I$(top_srcdir)/cut-n-paste/zoom-control/		\
+ 	-I$(top_srcdir)/cut-n-paste/gimpcellrenderertoggle/	\
+ 	-I$(top_srcdir)/cut-n-paste/smclient/			\
+ 	-I$(top_srcdir)/libdocument				\
+@@ -116,7 +115,6 @@ evince_LDFLAGS += -mwindows
+ endif
+ 
+ evince_LDADD=										\
+-	$(top_builddir)/cut-n-paste/zoom-control/libephyzoom.la				\
+ 	$(top_builddir)/cut-n-paste/gimpcellrenderertoggle/libgimpcellrenderertoggle.la	\
+ 	$(top_builddir)/cut-n-paste/smclient/libsmclient.la				\
+ 	$(top_builddir)/properties/libevproperties.la					\
+-- 
+1.8.0.1
+

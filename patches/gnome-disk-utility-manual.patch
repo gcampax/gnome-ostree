@@ -1,0 +1,50 @@
+From dda87ac22532bfc49893942584eef664f58c2dc3 Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagna@src.gnome.org>
+Date: Sat, 5 Jan 2013 16:36:31 +0100
+Subject: [PATCH] Allow disabling manual pages
+
+We don't want to build them in gnome-ostree (and we lack the
+docbook dependencies to do so anyway)
+---
+ configure.ac        | 3 +++
+ doc/man/Makefile.am | 3 ++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 022e1e8..40d3485 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -138,6 +138,9 @@ if test "x$enable_gsd_plugin" != "xno"; then
+ fi
+ AM_CONDITIONAL(USE_GSD_PLUGIN, [test "$msg_gsd_plugin" = "yes"])
+ 
++AC_ARG_ENABLE(man_pages, AS_HELP_STRING([--disable-man-pages],[don't build manual pages]), [], [enable_man_pages=yes])
++AM_CONDITIONAL(ENABLE_MAN, [test "$enable_man_pages" != "no"])
++
+ # ********************
+ # Internationalization
+ # ********************
+diff --git a/doc/man/Makefile.am b/doc/man/Makefile.am
+index 92e2686..f8e5fc7 100644
+--- a/doc/man/Makefile.am
++++ b/doc/man/Makefile.am
+@@ -1,6 +1,7 @@
+ 
+ NULL =
+ 
++if ENABLE_MAN
+ man_MANS = 				\
+ 	gnome-disks.1			\
+ 	gnome-disk-image-mounter.1	\
+@@ -11,7 +12,7 @@ gnome-disks.1 : gnome-disks.xml
+ 
+ gnome-disk-image-mounter.1 : gnome-disk-image-mounter.xml
+ 	$(XSLTPROC) -nonet http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl $<
+-
++endif
+ 
+ EXTRA_DIST= 				\
+ 	gnome-disks.xml			\
+-- 
+1.8.0.1
+

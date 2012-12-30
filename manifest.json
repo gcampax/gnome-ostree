@@ -22,6 +22,7 @@
                 "fd-p11": "git:git://anongit.freedesktop.org/git/p11-glue/",
                 "fd-gstreamer": "git:git://anongit.freedesktop.org/gstreamer/",
                 "fd-telepathy": "git:git://anongit.freedesktop.org/telepathy/",
+		"fd-poppler": "git:git://anongit.freedesktop.org/poppler/",
                 "0pointer": "git:git://git.0pointer.de/",
                 "ibus": "git:git://github.com/ibus/",
                 "linuxwacom": "git:git://linuxwacom.git.sourceforge.net/gitroot/linuxwacom/",
@@ -463,7 +464,8 @@
                 {"src": "tarball:http://www.complang.org/ragel/ragel-6.7.tar.gz",
 		 "patches": ["ragel-gcc-4.7.patch"]},
 
-                {"src": "git:git://anongit.freedesktop.org/harfbuzz"},
+                {"src": "git:git://anongit.freedesktop.org/harfbuzz",
+                 "patches": ["harfbuzz-icu-check.patch"]},
 
 		{"src": "gnome:pango"},
 
@@ -631,7 +633,9 @@
 		{"src": "fd:geoclue",
 		 "patches": ["geoclue-autogen-Honor-NOCONFIGURE-1.patch"]},
 
-		{"src": "tarball:http://webkitgtk.org/releases/webkitgtk-1.11.2.tar.xz",
+                {"src": "git:http://git.chromium.org/webm/libwebp.git"},
+
+		{"src": "tarball:http://webkitgtk.org/releases/webkitgtk-1.11.4.tar.xz",
 		 "config-opts": ["--enable-introspection",
 				 "--with-gstreamer=1.0"],
 		 "patches": ["webkitgtk-disable-parallel.patch",
@@ -715,6 +719,9 @@
 		{"src": "fd-xdg:shared-mime-info",
 		 "config-opts": ["--disable-default-make-check"]},
 
+                {"src": "fd-xdg:desktop-file-utils",
+                 "patches": ["desktop-file-utils-noconfigure.patch"]},
+
 		{"src": "gnome:cantarell-fonts",
 		 "config-opts": ["--disable-source-rebuild"]},
 
@@ -786,7 +793,82 @@
 
 		{"src": "gnome:pygobject"},
 
-		{"src": "gnome:caribou"}
+		{"src": "gnome:caribou"},
+                {"src": "gnome:gnome-backgrounds"},
 
+                {"src": "gnome:gnome-user-docs"},
+                {"src": "gnome:yelp"},
+
+		{"src": "fd:exempi",
+		 "patches": ["exempi-noconfigure.patch"]},
+		{"src": "gnome:nautilus"},
+                {"src": "gnome:gnome-user-share"},
+
+                {"src": "tarball:http://dvdnav.mplayerhq.hu/releases/libdvdread-4.2.0.tar.bz2"},
+                {"src": "gnome:gnome-disk-utility",
+		 "config-opts": ["--disable-man-pages"],
+		 "patches": ["gnome-disk-utility-builddir.patch",
+			     "gnome-disk-utility-manual.patch"]},
+
+		{"src": "gnome:gcalctool"},
+		{"src": "gnome:gucharmap"},
+		{"src": "gnome:gnome-dictionary"},
+		{"src": "gnome:baobab"},
+                {"src": "gnome:seahorse"},
+                {"src": "gnome:gnome-font-viewer"},
+                {"src": "gnome:gnome-screenshot"},
+                {"src": "gnome:gnome-system-log"},
+
+		{"src": "gnome:epiphany"},
+
+                {"src": "fd-poppler:poppler"},
+		{"src": "gnome:evince",
+		 "config-opts": ["--enable-introspection"],
+		 "patches": ["evince-parallel.patch",
+			     "evince-zoom-control.patch"]},
+                {"src": "gnome:libzapojit",
+		 "config-opts": ["--enable-maintainer-mode"],
+		 "patches": ["libzapojit-builddir.patch"]},
+		{"src": "gnome:gnome-documents"},
+
+                {"src": "gnome:folks",
+		 "tag": "562add03a72c9a97764700f9d438a1e81b89974a",
+		 "patches": ["folks-builddir.patch"]},
+                {"src": "gnome:gnome-contacts"},
+
+                {"src": "tarball:http://nice.freedesktop.org/releases/libnice-0.1.3.tar.gz"},
+                {"src": "tarball:http://freedesktop.org/software/farstream/releases/farstream/farstream-0.2.1.tar.gz"},
+                {"src": "fd-telepathy:telepathy-farstream",
+		 "patches": ["telepathy-farstream-buildapi.patch"]},
+                {"src": "fd-telepathy:telepathy-gabble",
+	         "config-opts": ["--disable-Werror"]},
+                {"src": "gnome:empathy",
+		 "config-opts": ["--enable-gst-1.0",
+				 "--disable-Werror"],
+		 "patches": ["empathy-builddir.patch"]},
+
+		{"src": "gnome:gnome-photos",
+		 "patches": ["gnome-photos-tracker.patch",
+			     "gnome-photos-builddir.patch"]},
+
+                {"src": "gnome:libpeas"},
+		{"src": "gnome:eog"},
+
+		{"src": "fd-gstreamer:gst-plugins-bad",
+		 "config-opts": ["--with-gtk=3.0",
+				 "--disable-tests",
+				 "--disable-examples",
+				 "--disable-fatal-warnings"]},
+                {"src": "tarball:http://ftp.acc.umu.se/pub/GNOME/sources/gmime/2.6/gmime-2.6.13.tar.xz"},
+                {"src": "gnome:grilo",
+		 "config-opts": ["--disable-vala"],
+		 "patches": ["grilo-builddir.patch"]},
+                {"src": "gnome:totem-pl-parser"},
+		{"src": "gnome:totem",
+		 "patches": ["totem-builddir.patch"]},
+
+		{"src": "git:git://gitorious.org/colord/colord-gtk.git"},
+                {"src": "gnome:gnome-color-manager",
+		 "config-opts": ["--disable-exiv"]}
 	]
 }

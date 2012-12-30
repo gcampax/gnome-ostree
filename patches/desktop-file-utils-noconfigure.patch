@@ -1,0 +1,48 @@
+From d0350b6eebcd6e2a77c7f0943be614af2a1e4056 Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagna@src.gnome.org>
+Date: Sat, 12 Jan 2013 20:34:15 +0100
+Subject: [PATCH] Support GNOME Build API
+
+By not running ./configure if the NOCONFIGURE environment variable
+is present.
+---
+ autogen.sh | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/autogen.sh b/autogen.sh
+index 0a4f98a..ddba5d6 100755
+--- a/autogen.sh
++++ b/autogen.sh
+@@ -41,11 +41,6 @@ test $TEST_TYPE $FILE || {
+ 	exit 1
+ }
+ 
+-if test -z "$*"; then
+-	echo "I am going to run ./configure with no arguments - if you wish "
+-        echo "to pass any to it, please specify them on the $0 command line."
+-fi
+-
+ echo $ACLOCAL $ACLOCAL_FLAGS
+ $ACLOCAL $ACLOCAL_FLAGS
+ 
+@@ -57,7 +52,14 @@ autoconf || echo "autoconf failed - version 2.5x is probably required"
+ 
+ cd $ORIGDIR
+ 
+-$srcdir/configure "$@"
++if test -z "$NOCONFIGURE"; then
++	if test -z "$*"; then
++		echo "I am going to run ./configure with no arguments - if you wish "
++	        echo "to pass any to it, please specify them on the $0 command line."
++	fi
+ 
+-echo 
+-echo "Now type 'make' to compile $PROJECT."
++	$srcdir/configure "$@"
++
++	echo
++	echo "Now type 'make' to compile $PROJECT."
++fi;
+-- 
+1.8.0.1
+

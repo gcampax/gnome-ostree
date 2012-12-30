@@ -1,0 +1,24 @@
+From ddba3abd86bee2791dab34464ca9098c8769380d Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagna@src.gnome.org>
+Date: Sat, 5 Jan 2013 15:07:47 +0100
+Subject: [PATCH] Fix parallel build of gimpcellrenderertoggle
+
+---
+ cut-n-paste/gimpcellrenderertoggle/Makefile.am | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/cut-n-paste/gimpcellrenderertoggle/Makefile.am b/cut-n-paste/gimpcellrenderertoggle/Makefile.am
+index fffeffa..57e3a09 100644
+--- a/cut-n-paste/gimpcellrenderertoggle/Makefile.am
++++ b/cut-n-paste/gimpcellrenderertoggle/Makefile.am
+@@ -12,6 +12,7 @@ libgimpcellrenderertoggle_la_CFLAGS =	\
+ libgimpcellrenderertoggle_la_built_sources =	\
+ 	gimpwidgetsmarshal.h			\
+ 	gimpwidgetsmarshal.c
++BUILT_SOURCES = $(libgimpcellrenderertoggle_la_built_sources)
+ 
+ libgimpcellrenderertoggle_la_SOURCES = 			\
+ 	$(libgimpcellrenderertoggle_la_built_sources)	\
+-- 
+1.8.0.1
+

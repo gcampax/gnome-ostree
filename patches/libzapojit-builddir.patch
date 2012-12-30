@@ -1,0 +1,34 @@
+From 061c46a44b18f7ddcd4541c1b70a535f337d77b7 Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagna@src.gnome.org>
+Date: Sat, 5 Jan 2013 15:27:24 +0100
+Subject: [PATCH] Fix build with srcdir != builddir
+
+---
+ src/Makefile.am | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 3c2ff30..a374e6c 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -128,7 +128,7 @@ DISTCLEANFILES = \
+ 	stamp-zpj-marshalers.h \
+ 	$(NULL)
+ 
+-zpj-enums.h: stamp-zpj-enums.h
++$(srcdir)/zpj-enums.h: stamp-zpj-enums.h
+ 	@true
+ 
+ stamp-zpj-enums.h: zpj-enums.h.template
+@@ -143,7 +143,7 @@ stamp-zpj-enums.h: zpj-enums.h.template
+ 		&& echo timestamp > $(@F) \
+ 	)
+ 
+-zpj-enums.c: zpj-enums.c.template
++$(srcdir)/zpj-enums.c: zpj-enums.c.template
+ 	$(AM_V_GEN) ( \
+ 		cd $(srcdir) \
+ 		&& ( glib-mkenums \
+-- 
+1.8.0.1
+

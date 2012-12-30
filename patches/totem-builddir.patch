@@ -1,0 +1,55 @@
+From adff6c4e4de5d1c5d3fdbcf35c4af6ff2f520f5a Mon Sep 17 00:00:00 2001
+From: Giovanni Campagna <gcampagna@src.gnome.org>
+Date: Sun, 13 Jan 2013 00:31:59 +0100
+Subject: [PATCH] Fix build with builddir != srcdir
+
+Automake inserts a cd $(srcdir) before calling valac, so relative
+paths don't work.
+---
+ src/plugins/rotation/Makefile.am     | 2 +-
+ src/plugins/sample-vala/Makefile.am  | 2 +-
+ src/plugins/zeitgeist-dp/Makefile.am | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/plugins/rotation/Makefile.am b/src/plugins/rotation/Makefile.am
+index 0b00917..b2b8b36 100644
+--- a/src/plugins/rotation/Makefile.am
++++ b/src/plugins/rotation/Makefile.am
+@@ -8,7 +8,7 @@ plugin_in_files = rotation.plugin.in
+ # here we are explicitly specifying gtk+-3.0 and clutter-1.0 to use the vapi
+ # because vala still cannot parse the gir
+ AM_VALAFLAGS = \
+-	--girdir=$(top_builddir)/src	\
++	--girdir=$(abs_top_builddir)/src	\
+ 	--pkg Totem-1.0 --pkg libpeas-1.0 --pkg cogl-pango-1.0 --pkg GtkClutter-1.0 --pkg Clutter-1.0 --pkg gtk+-3.0 bacon-video.vapi
+ 
+ librotation_la_SOURCES = totem-rotation-plugin.vala
+diff --git a/src/plugins/sample-vala/Makefile.am b/src/plugins/sample-vala/Makefile.am
+index f7ac1c2..3a3f91e 100644
+--- a/src/plugins/sample-vala/Makefile.am
++++ b/src/plugins/sample-vala/Makefile.am
+@@ -8,7 +8,7 @@ plugin_in_files = sample-vala.plugin.in
+ # here we are explicitly specifying gtk+-3.0 to use the vapi because vala still
+ # cannot parse the gir
+ AM_VALAFLAGS = \
+-	--girdir=$(top_srcdir)/src	\
++	--girdir=$(abs_top_builddir)/src	\
+ 	--pkg Totem-1.0 --pkg libpeas-1.0 --pkg gtk+-3.0
+ 
+ libsample_vala_la_SOURCES = totem-sample-vala-plugin.vala
+diff --git a/src/plugins/zeitgeist-dp/Makefile.am b/src/plugins/zeitgeist-dp/Makefile.am
+index ecb798f..d5f0998 100644
+--- a/src/plugins/zeitgeist-dp/Makefile.am
++++ b/src/plugins/zeitgeist-dp/Makefile.am
+@@ -8,7 +8,7 @@ plugin_in_files = zeitgeist-dp.plugin.in
+ # here we are explicitly specifying gtk+-3.0 to use the vapi because vala still
+ # cannot parse the gir
+ AM_VALAFLAGS = \
+-	--girdir=$(top_builddir)/src	\
++	--girdir=$(abs_top_builddir)/src	\
+ 	--pkg Totem-1.0 --pkg Peas-1.0 --pkg gtk+-3.0 \
+ 	--pkg zeitgeist-1.0 \
+ 	bacon-video.vapi
+-- 
+1.8.0.1
+
