@@ -32,16 +32,23 @@ const BUILD_ENV = {
     'TZ': 'EST5EDT'
     };
 
+const MODULE_TYPES = {
+    'git': imports.vcs.git.GitModule,
+    'local': imports.vcs.local.LocalModule,
+};
+
 function parseSrcKey(srckey) {
     let idx = srckey.indexOf(':');
     if (idx < 0) {
         throw new Error("Invalid SRC uri=" + srckey);
     }
+
     let keytype = srckey.substr(0, idx);
-    if (!(keytype == 'git' || keytype == 'local')) 
+    if (MODULE_TYPES[keytype] == undefined)
         throw new Error("Unsupported SRC uri=" + srckey);
+
     let uri = srckey.substr(idx+1);
-    return [keytype, uri];
+    return [MODULE_TYPES[keytype], uri];
 }
 
 function resolveComponent(manifest, componentMeta) {
@@ -66,8 +73,8 @@ function resolveComponent(manifest, componentMeta) {
         name = origSrc.substr(idx+1);
     }
 
-    let [keytype, uri] = parseSrcKey(src);
-    return new Vcs.Module(uri, name, componentMeta);
+    let [moduleType, uri] = parseSrcKey(src);
+    return new moduleType(uri, name, componentMeta);
 }
 
 function getPatchPathsForComponent(patchdir, component) {

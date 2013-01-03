@@ -88,37 +88,6 @@ const Checkout = new Lang.Class({
         module.checkout(checkoutdir, cancellable, {overwrite: args.overwrite});
         if (args.clean)
             module.clean(checkoutdir, cancellable);
-        /*
-	let checkoutdir;
-        if (isLocal) {
-            if (args.checkoutdir != null) {
-                checkoutdir = Gio.File.new_for_path(args.checkoutdir);
-		let ftype = checkoutdir.query_file_type(Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
-                // Kind of a hack, but...
-                if (ftype == Gio.FileType.SYMBOLIC_LINK)
-                    GSystem.file_unlink(checkoutdir, cancellable);
-                if (args.overwrite && ftype == Gio.FileType.DIRECTORY)
-                    GSystem.shutil_rm_rf(checkoutdir, cancellable);
-
-		checkoutdir.make_symbolic_link(uri, cancellable);
-            } else {
-                checkoutdir = Gio.File.new_for_path(uri);
-	    }
-        } else {
-
-            Vcs.getVcsCheckout(this.mirrordir, keytype, uri, checkoutdir,
-                               component['revision'], cancellable,
-                               {overwrite: args.overwrite});
-	}
-
-        if (args.clean) {
-            if (isLocal) {
-                print("note: ignoring --clean argument due to \"local:\" specification");
-            } else {
-                Vcs.clean(keytype, checkoutdir, cancellable);
-	    }
-	}
-        */
 
         let patchesPath = args.patches_path ? Gio.File.new_for_path(args.patches_path) : null;
         module.applyPatches(checkoutdir, patchModule, cancellable, { patchesPath: patchesPath });

@@ -558,21 +558,6 @@ const Build = new Lang.Class({
         let checkoutdir = this.workdir.get_child('checkouts').get_child(basemodule.name);
 	GSystem.file_ensure_directory(checkoutdir.get_parent(), true, cancellable);
 
-	let ftype = checkoutdir.query_file_type(Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
-        if (ftype == Gio.FileType.SYMBOLIC_LINK)
-	    GSystem.file_unlink(checkoutdir, cancellable);
-
-        /*
-        let [keytype, uri] = Vcs.parseSrcKey(basemeta['src']);
-        if (keytype == 'local') {
-	    GSystem.shutil_rm_rf(checkoutdir, cancellable);
-	    checkoutdir.make_symbolic_link(uri, cancellable);
-        } else {
-            Vcs.getVcsCheckout(this.mirrordir, keytype, uri, checkoutdir,
-                               basemeta['revision'], cancellable,
-                               {overwrite:false});
-	}
-        */
         basemodule.checkout(checkoutdir, cancellable, {overwrite: false});
 
         let builddirName = Format.vprintf('build-%s-%s', [basemodule.name, architecture]);
