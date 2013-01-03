@@ -155,18 +155,29 @@ def main(args):
         log("No 'configure' script found, looking for autogen/bootstrap")
         for name in ['autogen', 'autogen.sh', 'bootstrap']:
             if os.path.exists(name):
-                log("Using bootstrap script '%s'" % (name, ))
                 autogen_script = name
-        if autogen_script is None:
-            fatal("No configure or autogen script detected; unknown buildsystem")
+                break
 
-    if autogen_script is not None:
-        env = dict(os.environ)
-        env['NOCONFIGURE'] = '1'
-        run_sync(['./' + autogen_script], env=env)
+        if autogen_script is None:
+            is_autoconf = False
+            for name in ['configure.ac', 'configure.in']:
+                if os.path.exists(name):
+                    is_autoconf = True
+                    break
+
+            if is_autoconf:
+                log("Guessed autoconf, calling autoreconf")
+                run_sync(['autoreconf', '-fvi'])
+            else:
+                fatal("No configure or autogen script detected; unknown buildsystem")
+        else:
+            log("Using bootstrap script '%s'" % (name, ))
+            env = dict(os.environ)
+            env['NOCONFIGURE'] = '1'
+            run_sync(['./' + autogen_script], env=env)
     else:
         log("Using existing 'configure' script")
-            
+
     builddir = '_build'
 
     use_builddir = True
