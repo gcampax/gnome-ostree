@@ -35,6 +35,7 @@ const BUILD_ENV = {
 const MODULE_TYPES = {
     'git': imports.vcs.git.GitModule,
     'local': imports.vcs.local.LocalModule,
+    'tarball': imports.vcs.tarball.TarballModule,
 };
 
 function parseSrcKey(srckey) {

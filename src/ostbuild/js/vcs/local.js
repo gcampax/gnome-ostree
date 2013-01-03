@@ -42,11 +42,13 @@ const LocalModule = new Lang.Class({
     },
 
     checkout: function(checkoutdir, cancellable, params) {
+        params = Params.parse(params, {overwrite: true,
+				       quiet: false});
         let ftype = checkoutdir.query_file_type(Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
         // Kind of a hack, but...
         if (ftype == Gio.FileType.SYMBOLIC_LINK)
             GSystem.file_unlink(checkoutdir, cancellable);
-        if (args.overwrite && ftype == Gio.FileType.DIRECTORY)
+        if (params.overwrite && ftype == Gio.FileType.DIRECTORY)
             GSystem.shutil_rm_rf(checkoutdir, cancellable);
 
 	checkoutdir.make_symbolic_link(this.mirror.get_path(), cancellable);

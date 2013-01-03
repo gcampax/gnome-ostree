@@ -57,6 +57,9 @@ jsostbuild_DATA= \
 jsostbuildvcsdir=$(pkgdatadir)/js/vcs
 jsostbuildvcs_DATA = \
 	src/ostbuild/js/vcs/__init__.js \
+	src/ostbuild/js/vcs/git.js \
+	src/ostbuild/js/vcs/local.js \
+	src/ostbuild/js/vcs/tarball.js
 	$(NULL)
 
 jsostbuiltinsdir=$(jsostbuilddir)/builtins
