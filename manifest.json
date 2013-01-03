@@ -53,15 +53,14 @@
 		{"src": "gnome:gnome-common",
 		 "component": "devel"},
 
-		{"src": "cgwalters:intltool-git-mirror",
+		{"src": "tarball:https://launchpad.net/intltool/trunk/0.50.2/+download/intltool-0.50.2.tar.gz",
 		 "component": "devel"},
 
 		{"src": "savannah:gperf.git",
 		 "tag": "v3.0.4",
 		 "patches": ["gperf-autotools.patch"]},
 
-		{"src": "cgwalters:expat-git-mirror.git",
-		 "patches": ["expat-autogen.patch"]},
+		{"src": "tarball:http://downloads.sourceforge.net/project/expat/expat/2.1.0/expat-2.1.0.tar.gz"},
 
 		{"src": "fd-dbus:dbus",
 		 "name": "dbus-bootstrap",
@@ -290,8 +289,8 @@
 		{"src": "fd:cairo",
 		 "config-opts": ["--disable-interpreter"]},
 
-		{"src": "cgwalters:texinfo-git-mirror",
-		 "tag": "TEXI2HTML_1_82",
+		{"src": "tarball:http://ftp.gnu.org/gnu/texinfo/texinfo-4.13.tar.gz",
+		 "rm-configure": true,
 		 "config-opts": ["--disable-man-pages"],
 		 "patches": ["texinfo-disable-man.patch",
 			     "texinfo-dist-xz.patch"]},
@@ -381,7 +380,8 @@
 
 		{"src": "cgwalters:nspr-tarballs-as-git"},
 
-		{"src": "cgwalters:sqlite-tarballs-as-git"},
+		{"src": "tarball:http://www.sqlite.org/sqlite-autoconf-3071501.tar.gz",
+		 "name": "sqlite"},
 
 		{"src": "cgwalters:nss-tarballs-as-git",
 		 "tag": "v3.13.4"},
@@ -460,9 +460,8 @@
 		                 "--disable-gtk",
 				 "--disable-documentation"]},
 
-                {"src": "cgwalters:ragel-tarballs-as-git",
-		 "patches": ["ragel-gcc-4.7.patch"],
-		 "tag": "0b17ee79bf5237ffdc3a2a7480023a7d61063788"},
+                {"src": "tarball:http://www.complang.org/ragel/ragel-6.7.tar.gz",
+		 "patches": ["ragel-gcc-4.7.patch"]},
 
                 {"src": "git:git://anongit.freedesktop.org/harfbuzz"},
 
@@ -632,7 +631,7 @@
 		{"src": "fd:geoclue",
 		 "patches": ["geoclue-autogen-Honor-NOCONFIGURE-1.patch"]},
 
-		{"src": "gnome:webkitgtk-tarball-releases",
+		{"src": "tarball:http://webkitgtk.org/releases/webkitgtk-1.11.2.tar.xz",
 		 "config-opts": ["--enable-introspection",
 				 "--with-gstreamer=1.0"],
 		 "patches": ["webkitgtk-disable-parallel.patch",
@@ -699,14 +698,12 @@
 
 		{"src": "gnome:libgweather"},
 
-		{"src": "cgwalters:liboauth-tarballs-as-git",
-		 "rm-configure": true,
-		 "config-opts": ["--enable-nss"],
-		 "patches": ["liboauth-tarballs-as-git-autogen.patch"]},
+		{"src": "tarball:http://liboauth.sourceforge.net/pool/liboauth-1.0.0.tar.gz",
+		 "config-opts": ["--enable-nss"]},
 
 		{"src": "gnome:libgdata"},
 
-		{"src": "cgwalters:libical-tarballs-as-git"},
+		{"src": "tarball:http://downloads.sourceforge.net/project/freeassociation/libical/libical-0.48/libical-0.48.tar.gz"},
 
 		{"src": "gnome:evolution-data-server",
 		 "config-opts": ["--enable-vala-bindings"]},
@@ -760,11 +757,8 @@
 
 		{"src": "gnome:clutter-gtk"},
 
-		{"src": "cgwalters:libpwquality-git",
-                 "config-opts": ["--disable-python-bindings"],
-                 "patches": ["libpwquality-builddir.patch",
-                             "libpwquality-python-bindings.patch"]
-                }, 
+		{"src": "tarball:https://fedorahosted.org/releases/l/i/libpwquality/libpwquality-1.2.1.tar.bz2",
+		 "config-opts": ["--disable-python-bindings"]},
 
 		{"src": "gnome:gnome-control-center",
 		 "config-opts": ["--disable-documentation",
