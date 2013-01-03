@@ -19,6 +19,8 @@ const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 const Lang = imports.lang;
 
+const Vcs = imports.vcs;
+
 const BUILD_ENV = {
     'HOME' : '/', 
     'HOSTNAME' : 'ostbuild',
@@ -43,48 +45,29 @@ function parseSrcKey(srckey) {
 }
 
 function resolveComponent(manifest, componentMeta) {
-    let result = {};
-    Lang.copyProperties(componentMeta, result);
     let origSrc = componentMeta['src'];
+    let src = origSrc;
 
     let didExpand = false;
-    let vcsConfig = manifest['vcsconfig'];
+    let vcsConfig = manifest['vcsconfig'] || {};
     for (let vcsprefix in vcsConfig) {
 	let expansion = vcsConfig[vcsprefix];
         let prefix = vcsprefix + ':';
         if (origSrc.indexOf(prefix) == 0) {
-            result['src'] = expansion + origSrc.substr(prefix.length);
+            src = expansion + origSrc.substr(prefix.length);
             didExpand = true;
             break;
 	}
     }
 
     let name = componentMeta['name'];
-    let src, idx, name;
-    if (name == undefined) {
-        if (didExpand) {
-            src = origSrc;
-            idx = src.lastIndexOf(':');
-            name = src.substr(idx+1);
-        } else {
-            src = result['src'];
-            idx = src.lastIndexOf('/');
-            name = src.substr(idx+1);
-	}
-	let i = name.lastIndexOf('.git');
-        if (i != -1 && i == name.length - 4) {
-            name = name.substr(0, name.length - 4);
-	}
-        name = name.replace(/\//g, '-');
-        result['name'] = name;
+    if (name == undefined && didExpand) {
+        let idx = origSrc.lastIndexOf(':');
+        name = origSrc.substr(idx+1);
     }
 
-    let branchOrTag = result['branch'] || result['tag'];
-    if (!branchOrTag) {
-        result['branch'] = 'master';
-    }
-
-    return result;
+    let [keytype, uri] = parseSrcKey(src);
+    return new Vcs.Module(uri, name, componentMeta);
 }
 
 function getPatchPathsForComponent(patchdir, component) {

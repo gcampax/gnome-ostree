@@ -52,7 +52,11 @@ jsostbuild_DATA= \
 	src/ostbuild/js/snapshot.js \
 	src/ostbuild/js/streamutil.js \
 	src/ostbuild/js/task.js \
-	src/ostbuild/js/vcs.js \
+	$(NULL)
+
+jsostbuildvcsdir=$(pkgdatadir)/js/vcs
+jsostbuildvcs_DATA = \
+	src/ostbuild/js/vcs/__init__.js \
 	$(NULL)
 
 jsostbuiltinsdir=$(jsostbuilddir)/builtins

@@ -24,7 +24,6 @@ const ProcUtil = imports.procutil;
 const Config = imports.config;
 const Snapshot = imports.snapshot;
 const BuildUtil = imports.buildutil;
-const Vcs = imports.vcs;
 const JsonUtil = imports.jsonutil;
 const JsonDB = imports.jsondb;
 const ArgParse = imports.argparse;
@@ -61,45 +60,29 @@ const GitMirror = new Lang.Class({
 
         if (args.manifest != null) {
             this._snapshot = JsonUtil.loadJson(Gio.File.new_for_path(args.manifest), cancellable);
-	    let resolvedComponents = [];
-	    let components = this._snapshot['components'];
-	    for (let i = 0; i < components.length; i++) {
-		resolvedComponents.push(BuildUtil.resolveComponent(this._snapshot, components[i]));
-	    }
-            this._snapshot['components'] = resolvedComponents;
-            this._snapshot['patches'] = BuildUtil.resolveComponent(this._snapshot, this._snapshot['patches']);
-            this._snapshot['base'] = BuildUtil.resolveComponent(this._snapshot, this._snapshot['base']);
         } else {
 	    [this._snapshot, this._snapshotPath] = Snapshot.load(this._srcDb, this.prefix, args.snapshot, cancellable);
-	}
+        }
 
-	let componentNames;
+	let modules = [];
+
         if (args.components.length == 0) {
-            componentNames = [];
-            componentNames.push(this._snapshot['patches']['name']);
-            componentNames.push(this._snapshot['base']['name']);
-	    this._snapshot['components'].forEach(function (component) {
-		componentNames.push(component['name']);
-	    });
-        } else {
-            componentNames = args.components;
-	}
-
-	componentNames.forEach(Lang.bind(this, function (name) {
-            let component = Snapshot.getComponent(this._snapshot, name);
-            let src = component['src']
-            let [keytype, uri] = Vcs.parseSrcKey(src);
-            let branch = component['branch'];
-            let tag = component['tag'];
-            let branchOrTag = branch || tag;
-
-            if (!args.fetch) {
-                Vcs.ensureVcsMirror(this._mirrordir, keytype, uri, branchOrTag, cancellable);
-	    } else {
-		print("Running git fetch for " + name);
-		Vcs.fetch(this._mirrordir, keytype, uri, branchOrTag, cancellable, {keepGoing:args.keep_going});
+	    let components = this._snapshot['components'];
+	    for (let i = 0; i < components.length; i++) {
+	        modules.push(BuildUtil.resolveComponent(this._snapshot, components[i]));
 	    }
-	}));
+            modules.push(BuildUtil.resolveComponent(this._snapshot, this._snapshot['patches']));
+            modules.push(BuildUtil.resolveComponent(this._snapshot, this._snapshot['base']));
+        } else {
+	    args.components.forEach(Lang.bind(this, function (name) {
+                let component = Snapshot.getComponent(this._snapshot, name);
+                modules.push(BuildUtil.resolveComponent(this._snapshot, component));
+            }));
+        }
+
+        modules.forEach(function (m) {
+            m.ensureMirror(cancellable, {fetch:args.fetch, fetchKeepGoing:args.keep_going});
+        });
     }
 });
 

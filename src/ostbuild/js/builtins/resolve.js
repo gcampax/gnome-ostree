@@ -29,7 +29,6 @@ const JsonUtil = imports.jsonutil;
 const Snapshot = imports.snapshot;
 const Config = imports.config;
 const BuildUtil = imports.buildutil;
-const Vcs = imports.vcs;
 const ArgParse = imports.argparse;
 
 var loop = GLib.MainLoop.new(null, true);
@@ -54,9 +53,16 @@ const Resolve = new Lang.Class({
         let args = parser.parse(argv);
 
 	let componentsToFetch = {};
-	args.components.forEach(function (name) {
-	    componentsToFetch[name] = true;
-	});
+        let fetchAll = false;
+        if (args.fetch) {
+            if (args.components.length) {
+	        args.components.forEach(function (name) {
+	            componentsToFetch[name] = true;
+	        });
+            } else {
+                fetchAll = true;
+            }
+        }
 
         if (args.components.length > 0 && !args.fetch) {
             throw new Error("Can't specify components without --fetch");
@@ -69,16 +75,30 @@ const Resolve = new Lang.Class({
 	this._mirrordir = Gio.File.new_for_path(this.config.getGlobal('mirrordir'));
         this.prefix = this._snapshot['prefix'];
 
+        let baseModule = BuildUtil.resolveComponent(this._snapshot, this._snapshot['base']);
+        baseModule.ensureMirror(cancellable, {fetch: fetchAll || componentsToFetch[baseModule.name],
+                                              fetchKeepGoing: args.fetch_keep_going});
+        this._snapshot['base'] = baseModule.getMeta();
+
+        let globalPatchesModule = BuildUtil.resolveComponent(this._snapshot, this._snapshot['patches']);
+        globalPatchesModule.ensureMirror(cancellable, {fetch: fetchAll || componentsToFetch[globalPatchesModule.name],
+                                                       fetchKeepGoing: args.fetch_keep_going});
+        this._snapshot['patches'] = globalPatchesModule.getMeta();
+
 	let components = this._snapshot['components'];
-	let resolvedComponents = [];
+        let resolvedComponents = [];
 	for (let i = 0; i < components.length; i++) {
-	    resolvedComponents.push(BuildUtil.resolveComponent(this._snapshot, components[i]));
+            let module = BuildUtil.resolveComponent(this._snapshot, components[i]);
+            module.ensureMirror(cancellable, {fetch: fetchAll || componentsToFetch[module.name],
+                                              fetchKeepGoing: args.fetch_keep_going});
+
+            resolvedComponents[i] = module.getMeta();
 	}
-        this._snapshot['components'] = components = resolvedComponents;
+        this._snapshot['components'] = resolvedComponents;
 
         let uniqueComponentNames = {};
-        for (let i = 0; i < components.length; i++) {
-	    let component = components[i];
+        for (let i = 0; i < resolvedComponents.length; i++) {
+	    let component = resolvedComponents[i];
             let name = component['name'];
             if (uniqueComponentNames[name]) {
                 throw new Error("Duplicate component name " + name);
@@ -86,50 +106,8 @@ const Resolve = new Lang.Class({
             uniqueComponentNames[name] = true;
 	}
 
-        let baseMeta = BuildUtil.resolveComponent(this._snapshot, this._snapshot['base']);
-        this._snapshot['base'] = baseMeta;
-        let [keytype, uri] = Vcs.parseSrcKey(baseMeta['src']);
-        let mirrordir = Vcs.ensureVcsMirror(this._mirrordir, keytype, uri, baseMeta['branch'], cancellable);
-        if (componentsToFetch[baseMeta['name']]) {
-            ProcUtil.runSync(['git', 'fetch'], cancellable, {cwd:mirrordir});
-	}
-
-        let baseRevision = Vcs.describeVersion(mirrordir, baseMeta['branch']);
-        baseMeta['revision'] = baseRevision;
-
-        let globalPatchesMeta = BuildUtil.resolveComponent(this._snapshot, this._snapshot['patches']);
-        this._snapshot['patches'] = globalPatchesMeta;
-        let [keytype, uri] = Vcs.parseSrcKey(globalPatchesMeta['src']);
-        let mirrordir = Vcs.ensureVcsMirror(this._mirrordir, keytype, uri, globalPatchesMeta['branch'], cancellable);
-        if (componentsToFetch[globalPatchesMeta['name']]) {
-            ProcUtil.runSync(['git', 'fetch'], cancellable,
-			     {cwd:mirrordir});
-	}
-
-        let gitMirrorArgs = ['ostbuild', 'git-mirror', '--manifest=' + args.manifest];
-        if (args.fetch) {
-            gitMirrorArgs.push('--fetch');
-            if (args.fetch_keep_going) {
-                gitMirrorArgs.push('-k');
-	    }
-            gitMirrorArgs.push.apply(gitMirrorArgs, args.components);
-	}
-        ProcUtil.runSync(gitMirrorArgs, cancellable);
-
-        let patchRevision = Vcs.describeVersion(mirrordir, globalPatchesMeta['branch']);
-        globalPatchesMeta['revision'] = patchRevision;
-
-        for (let i = 0; i < components.length; i++) {
-	    let component = components[i];
-            let src = component['src'];
-            let [keytype, uri] = Vcs.parseSrcKey(src);
-            let branch = component['branch'];
-            let tag = component['tag'];
-            let branchOrTag = branch || tag;
-            let mirrordir = Vcs.ensureVcsMirror(this._mirrordir, keytype, uri, branchOrTag, cancellable);
-            let revision = Vcs.describeVersion(mirrordir, branchOrTag);
-            component['revision'] = revision;
-	}
+        // Prevent duplicate resolution of src keys
+        delete this._snapshot['vcsconfig'];
 
 	let snapshotdir = this.workdir.get_child('snapshots');
 	this._src_db = new JsonDB.JsonDB(snapshotdir, this.prefix + '-src-snapshot');

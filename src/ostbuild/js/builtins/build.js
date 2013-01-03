@@ -170,7 +170,7 @@ const Build = new Lang.Class({
         return cachedRoot;
      },
 
-    _analyzeBuildFailure: function(t, architecture, component, componentSrcdir,
+    _analyzeBuildFailure: function(t, architecture, component, componentSrc, module,
 				   currentVcsVersion, previousVcsVersion,
 				   cancellable) {
         let dataIn = Gio.DataInputStream.new(t.logfile_path.read(cancellable));
@@ -182,12 +182,10 @@ const Build = new Lang.Class({
             print("| " + lines[i]);
 	}
         if (currentVcsVersion && previousVcsVersion) {
-            let args = ['git', 'log', '--format=short'];
-            args.push(previousVcsVersion + '...' + currentVcsVersion);
-            let env = GLib.get_environ();
-            env.push('GIT_PAGER=cat');
-	    ProcUtil.runSync(args, cancellable, {cwd: componentSrcdir,
-						 env: env});
+            module.shortlog(componentSrc,
+                            { previous: previousVcsVersion,
+                              current: currentVcsVersion },
+                            cancellable);
         } else {
             print("No previous build; skipping source diff");
 	}
@@ -279,13 +277,14 @@ const Build = new Lang.Class({
     },
 
     _buildOneComponent: function(component, architecture, cancellable) {
-        let basename = component['name'];
+        let expandedComponent = Snapshot.expandComponent(this._snapshot, component);
+        let module = BuildUtil.resolveComponent(this._snapshot, component);
+        let basename = module.name;
 
         let buildname = Format.vprintf('%s/%s/%s', [this._snapshot['prefix'], basename, architecture]);
         let buildRef = 'components/' + buildname;
 
-        let currentVcsVersion = component['revision'];
-        let expandedComponent = Snapshot.expandComponent(this._snapshot, component);
+        let currentVcsVersion = module.revision;
         let previousMetadata = this._componentBuildCache[buildname];
         let wasInBuildCache = (previousMetadata != null);
 	let previousBuildVersion;
@@ -317,11 +316,7 @@ const Build = new Lang.Class({
             } else if (this._cachedPatchdirRevision == patchesRevision) {
                 patchdir = this.patchdir;
             } else {
-                patchdir = Vcs.checkoutPatches(this.mirrordir,
-                                               this.patchdir,
-                                               expandedComponent,
-					       cancellable,
-                                               {patchesPath: this.args.patches_path});
+                patchdir = module.checkoutPatches(this._patchModule, cancellable);
                 this._cachedPatchdirRevision = patchesRevision;
 	    }
             if ((previousMetadata != null) &&
@@ -339,7 +334,7 @@ const Build = new Lang.Class({
 	}
 
         let forceRebuild = (this.forceBuildComponents[basename] ||
-                            expandedComponent['src'].indexOf('local:') == 0);
+                            module.keytype == 'local');
 
         if (previousMetadata != null) {
             let rebuildReason = this._needsRebuild(previousMetadata, expandedComponent);
@@ -427,7 +422,7 @@ const Build = new Lang.Class({
 	let [buildSuccess, msg] = ProcUtil.getExitStatusAndString(estatus);
         if (!buildSuccess) {
             buildTaskset.finish(false);
-            this._analyzeBuildFailure(t, architecture, component, componentSrc,
+            this._analyzeBuildFailure(t, architecture, component, componentSrc, module,
                                       currentVcsVersion, previousVcsVersion, cancellable);
 	    throw new Error("Build failure in component " + buildname + " : " + msg);
 	}
@@ -557,14 +552,17 @@ const Build = new Lang.Class({
     /* Build the Yocto base system. */
     _buildBase: function(architecture, cancellable) {
         let basemeta = Snapshot.expandComponent(this._snapshot, this._snapshot['base']);
-	let basename = basemeta['name'];
         let checkoutdir = this.workdir.get_child('checkouts').get_child(basemeta['name']);
+        let basemodule = BuildUtil.resolveComponent(this._snapshot, basemeta);
+	let basename = basemodule.name;
+        let checkoutdir = this.workdir.get_child('checkouts').get_child(basemodule.name);
 	GSystem.file_ensure_directory(checkoutdir.get_parent(), true, cancellable);
 
 	let ftype = checkoutdir.query_file_type(Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, cancellable);
         if (ftype == Gio.FileType.SYMBOLIC_LINK)
 	    GSystem.file_unlink(checkoutdir, cancellable);
 
+        /*
         let [keytype, uri] = Vcs.parseSrcKey(basemeta['src']);
         if (keytype == 'local') {
 	    GSystem.shutil_rm_rf(checkoutdir, cancellable);
@@ -574,12 +572,14 @@ const Build = new Lang.Class({
                                basemeta['revision'], cancellable,
                                {overwrite:false});
 	}
+        */
+        basemodule.checkout(checkoutdir, cancellable, {overwrite: false});
 
-        let builddirName = Format.vprintf('build-%s-%s', [basemeta['name'], architecture]);
+        let builddirName = Format.vprintf('build-%s-%s', [basemodule.name, architecture]);
         let builddir = this.workdir.get_child(builddirName);
 
         let forceRebuild = (this.forceBuildComponents[basename] ||
-                            basemeta['src'].indexOf('local:') == 0);
+                            basemodule.keytype == 'local');
 
 	let builtRevisionPath = builddir.get_child('built-revision');
 	if (builtRevisionPath.query_exists(cancellable)) {
@@ -587,11 +587,11 @@ const Build = new Lang.Class({
 	    builtRevision = builtRevision.replace(/[ \n]/g, '');
 	    if (forceRebuild) {
 		print(Format.vprintf("%s forced rebuild", [builddirName]));
-	    } else if (builtRevision == basemeta['revision']) {
+	    } else if (builtRevision == basemodule.revision) {
 		print(Format.vprintf("Already built %s at %s", [builddirName, builtRevision]));
 		return;
 	    } else {
-		print(Format.vprintf("%s was %s, now at revision %s", [builddirName, builtRevision, basemeta['revision']]));
+		print(Format.vprintf("%s was %s, now at revision %s", [builddirName, builtRevision, basemodule.revision]));
 	    }
 	} 
 
@@ -625,9 +625,9 @@ const Build = new Lang.Class({
 	    GSystem.file_unlink(tarPath, cancellable);
 	}
 
-	builtRevisionPath.replace_contents(basemeta['revision'], null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, cancellable);
+	builtRevisionPath.replace_contents(basemeta.revision, null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, cancellable);
     },
-        
+
     execute: function(argv) {
 	let cancellable = null;
 
@@ -662,6 +662,8 @@ const Build = new Lang.Class({
             ProcUtil.runSync(['ostree', '--repo=' + this.repo.get_path(), 'init', '--archive'],
 			     cancellable);
 	}
+
+        this._patchModule = BuildUtil.resolveComponent(this._snapshot, this._snapshot['patches']);
 
         let components = this._snapshot['components'];
 
@@ -759,7 +761,7 @@ const Build = new Lang.Class({
                 } else {
                     targetComponents = develComponents;
 		}
-                    
+
                 let contents = [];
                 for (let i = 0; i < targetComponents.length; i++) {
 		    let component = targetComponents[i];
