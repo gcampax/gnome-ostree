@@ -813,7 +813,6 @@
 		{"src": "gnome:gcalctool"},
 		{"src": "gnome:gucharmap"},
 		{"src": "gnome:gnome-dictionary"},
-		{"src": "gnome:baobab"},
                 {"src": "gnome:seahorse"},
                 {"src": "gnome:gnome-font-viewer"},
                 {"src": "gnome:gnome-screenshot"},
